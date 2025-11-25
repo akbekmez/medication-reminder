@@ -1,0 +1,78 @@
+<div class="fixed inset-0 bg-black bg-opacity-60 z-40 flex items-center justify-center p-4 animate-fade-in" (click)="closeModal.emit()">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl h-[80vh] flex flex-col relative animate-slide-up" (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="flex justify-between items-center p-4 border-b border-gray-200 flex-shrink-0">
+      <div class="flex items-center space-x-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+          <path d="M15 7v2a2 2 0 012 2v5a2 2 0 01-2 2h-1v-2l-3 3v-3h-3a2 2 0 01-2-2V9a2 2 0 012-2h4V7a5 5 0 0110 0v2a2 2 0 11-4 0V7a1 1 0 00-1-1h-1z" />
+        </svg>
+        <h3 class="text-lg font-semibold text-gray-800">Akıllı Asistan'a Sor</h3>
+      </div>
+      <button (click)="closeModal.emit()" class="text-gray-400 hover:text-gray-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Chat Messages -->
+    <div #chatContainer class="flex-grow p-6 overflow-y-auto space-y-6">
+      @for (message of messages(); track $index) {
+        <div class="flex" [class.justify-end]="message.role === 'user'" [class.justify-start]="message.role === 'assistant'">
+          <div class="flex items-start gap-3 max-w-lg">
+            @if (message.role === 'assistant') {
+              <div class="flex-shrink-0 h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+                    <path d="M15 7v2a2 2 0 012 2v5a2 2 0 01-2 2h-1v-2l-3 3v-3h-3a2 2 0 01-2-2V9a2 2 0 012-2h4V7a5 5 0 0110 0v2a2 2 0 11-4 0V7a1 1 0 00-1-1h-1z" />
+                  </svg>
+              </div>
+            }
+             <div class="rounded-lg p-3" [class.bg-blue-600]="message.role === 'user'" [class.text-white]="message.role === 'user'" [class.bg-gray-100]="message.role === 'assistant'" [class.text-gray-800]="message.role === 'assistant'">
+                @if (message.isStreaming && message.content === '') {
+                    <div class="flex items-center space-x-2">
+                        <span class="h-2 w-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                        <span class="h-2 w-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                        <span class="h-2 w-2 bg-gray-400 rounded-full animate-bounce"></span>
+                    </div>
+                } @else {
+                    <div class="prose prose-sm max-w-none" [innerHTML]="message.content | markdown | async"></div>
+                }
+            </div>
+          </div>
+        </div>
+      }
+       @if(!isLoading() && messages().length <= 1) {
+        <div class="text-center text-sm text-gray-500">
+            <p>Örnek Sorular:</p>
+            <div class="flex flex-wrap justify-center gap-2 mt-2">
+                <button (click)="sendMessage('Parol ne işe yarar?')" class="px-3 py-1 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">"Parol ne işe yarar?"</button>
+                <button (click)="sendMessage('İlaçlarımın olası yan etkileri nelerdir?')" class="px-3 py-1 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">"İlaçlarımın yan etkileri nelerdir?"</button>
+            </div>
+        </div>
+      }
+    </div>
+
+    <!-- Input Form -->
+    <div class="p-4 border-t border-gray-200 bg-white flex-shrink-0">
+      <div class="flex items-center space-x-2">
+        <input 
+            type="text" 
+            [(ngModel)]="userInput"
+            (keydown.enter)="sendMessage()"
+            [disabled]="isLoading()"
+            placeholder="Mesajınızı yazın..."
+            class="flex-grow border-gray-300 rounded-full shadow-sm py-2 px-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+        >
+        <button (click)="sendMessage()" [disabled]="!userInput().trim() || isLoading()" class="inline-flex items-center justify-center h-10 w-10 rounded-full text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+            </svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

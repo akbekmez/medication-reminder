@@ -1,0 +1,101 @@
+<div class="fixed inset-0 bg-black bg-opacity-60 z-40 flex items-center justify-center p-4 animate-fade-in" (click)="closeModal.emit()">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-lg relative animate-slide-up" (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="flex justify-between items-center p-4 border-b border-gray-200">
+      <div class="flex items-center space-x-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.993.883L4 8v1.172a2 2 0 00.586 1.414l.054.054a3 3 0 01.879 2.121V16a2 2 0 002 2h4a2 2 0 002-2v-3.239a3 3 0 01.879-2.121l.054-.054A2 2 0 0016 9.172V8l-.007-.117A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm-2 5V6a2 2 0 114 0v1H8z" />
+        </svg>
+        <h3 class="text-lg font-semibold text-gray-800">Akıllı Yeniden Dolum Asistanı</h3>
+      </div>
+      <button (click)="closeModal.emit()" class="text-gray-400 hover:text-gray-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-6 min-h-[20rem] flex flex-col justify-center">
+      @switch (viewState()) {
+        @case ('needsInfo') {
+          <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+            <h3 class="mt-2 text-lg font-medium text-gray-900">Doktor Bilgisi Eksik</h3>
+            <p class="mt-1 text-sm text-gray-500">
+              Bu özelliği kullanmak için lütfen '{{ activeProfile().name }}' profilinize doktor adı ve e-posta adresi ekleyin.
+            </p>
+            <div class="mt-6">
+              <button (click)="manageProfile()" type="button" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Profile Git
+              </button>
+            </div>
+          </div>
+        }
+        @case ('initial') {
+          <div class="text-center">
+            <h3 class="text-lg font-medium text-gray-900">
+              <span class="font-bold">{{ medication().name }}</span> için reçete yenileme talebi oluşturulsun mu?
+            </h3>
+            <p class="mt-2 text-sm text-gray-500">
+              Yapay zeka, doktorunuz <span class="font-semibold">{{ activeProfile().doctorName }}</span>'a gönderilmek üzere bir e-posta taslağı hazırlayacaktır.
+            </p>
+            <div class="mt-6">
+              <button (click)="generateEmail()" type="button" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                </svg>
+                Taslak E-posta Oluştur
+              </button>
+            </div>
+          </div>
+        }
+        @case ('generating') {
+          <div class="flex flex-col items-center justify-center space-y-4">
+            <svg class="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="text-lg font-medium text-gray-700 animate-pulse">E-posta oluşturuluyor...</p>
+          </div>
+        }
+        @case ('error') {
+           <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+            <h3 class="mt-2 text-lg font-medium text-gray-900">Bir Hata Oluştu</h3>
+            <p class="mt-1 text-sm text-red-600">{{ errorMessage() }}</p>
+            <div class="mt-6">
+               <button (click)="generateEmail()" type="button" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Tekrar Dene
+              </button>
+            </div>
+          </div>
+        }
+        @case ('ready') {
+          <div class="space-y-4">
+            <label for="emailBody" class="block text-sm font-medium text-gray-700">Oluşturulan E-posta Taslağı</label>
+            <textarea id="emailBody" [(ngModel)]="generatedEmail" rows="8" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"></textarea>
+            <p class="text-xs text-gray-500">Gönder butonuna bastığınızda, bu metin varsayılan e-posta uygulamanızda açılacaktır. E-postayı göndermeden önce düzenleyebilirsiniz.</p>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="px-4 py-3 bg-gray-50 flex justify-end items-center sm:px-6 rounded-b-lg">
+      <button (click)="closeModal.emit()" type="button" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        İptal
+      </button>
+      @if (viewState() === 'ready') {
+        <a [href]="mailtoLink" target="_blank" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+          E-postayı Gönder
+        </a>
+      }
+    </div>
+  </div>
+</div>

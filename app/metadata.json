@@ -1,0 +1,7 @@
+{
+  "name": "İlaç Hatırlatıcı",
+  "description": "Kullanıcıların ilaçlarını zamanında almalarını hatırlatan, Metronic tasarımlı, şık ve modern bir ilaç hatırlatma uygulaması.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

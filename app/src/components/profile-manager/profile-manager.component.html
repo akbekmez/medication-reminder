@@ -1,0 +1,106 @@
+<div class="fixed inset-0 bg-black bg-opacity-60 z-40 flex items-center justify-center p-4 animate-fade-in" (click)="closeModal.emit()">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-md relative animate-slide-up" (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="flex justify-between items-center p-4 border-b border-gray-200">
+      <h3 class="text-lg font-semibold text-gray-800">Profilleri Yönet</h3>
+      <button (click)="closeModal.emit()" class="text-gray-400 hover:text-gray-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-6 max-h-[70vh] overflow-y-auto">
+      <!-- Existing Profiles List -->
+      <div class="space-y-3">
+        @for (profile of profiles(); track profile.id) {
+          <div class="bg-gray-50 p-3 rounded-lg">
+            @if (editingProfile()?.id === profile.id) {
+              @let editing = editingProfile()!;
+              <!-- Editing View -->
+              <div class="space-y-3">
+                <div class="flex items-center space-x-3">
+                  <div class="relative group">
+                    <button class="text-3xl p-1 rounded-full bg-white border border-gray-300">{{ editing.avatar }}</button>
+                    <div class="absolute bottom-full mb-2 hidden group-hover:flex bg-white p-2 rounded-lg shadow-lg border border-gray-200 z-10">
+                      @for(avatar of availableAvatars; track avatar) {
+                        <span (click)="updateEditingAvatar(avatar)" class="text-2xl cursor-pointer p-1 hover:bg-gray-200 rounded-md">{{avatar}}</span>
+                      }
+                    </div>
+                  </div>
+                  <input [(ngModel)]="editing.name" type="text" class="flex-grow border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                  <button (click)="saveEditedProfile()" class="text-green-600 hover:text-green-800 p-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                  <button (click)="cancelEditing()" class="text-gray-500 hover:text-gray-700 p-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.697a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+                <div class="space-y-2">
+                   <input [(ngModel)]="editing.doctorName" type="text" placeholder="Doktor Adı (isteğe bağlı)" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                   <input [(ngModel)]="editing.doctorEmail" type="email" placeholder="Doktor E-posta (isteğe bağlı)" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                </div>
+              </div>
+            } @else {
+              <!-- Display View -->
+              <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                  <span class="text-3xl">{{ profile.avatar }}</span>
+                  <div>
+                    <span class="font-medium text-gray-800">{{ profile.name }}</span>
+                    @if (profile.doctorName) {
+                      <p class="text-xs text-gray-500">{{profile.doctorName}}</p>
+                    }
+                  </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                  <button (click)="startEditing(profile)" title="Düzenle" class="text-gray-400 hover:text-blue-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                      <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
+                    </svg>
+                  </button>
+                   @if (profiles().length > 1) {
+                    <button (click)="confirmDelete(profile.id)" title="Sil" class="text-gray-400 hover:text-red-600">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+                      </svg>
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Add New Profile Form -->
+      <div class="mt-6 border-t pt-6">
+        <h4 class="text-md font-semibold text-gray-800 mb-3">Yeni Profil Ekle</h4>
+        <div class="space-y-3">
+          <div class="flex items-center space-x-3">
+              <div class="relative group">
+                <button class="text-3xl p-1 rounded-full bg-white border border-gray-300">{{ newProfileAvatar() }}</button>
+                <div class="absolute bottom-full mb-2 hidden group-hover:flex bg-white p-2 rounded-lg shadow-lg border border-gray-200 z-10">
+                  @for(avatar of availableAvatars; track avatar) {
+                    <span (click)="newProfileAvatar.set(avatar)" class="text-2xl cursor-pointer p-1 hover:bg-gray-200 rounded-md">{{avatar}}</span>
+                  }
+                </div>
+              </div>
+            <input [(ngModel)]="newProfileName" (keydown.enter)="saveNewProfile()" type="text" placeholder="Profil adı (örn: Anne)" class="flex-grow border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <input [(ngModel)]="newProfileDoctorName" type="text" placeholder="Doktor Adı (isteğe bağlı)" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          <input [(ngModel)]="newProfileDoctorEmail" type="email" placeholder="Doktor E-posta (isteğe bağlı)" class="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+          <button (click)="saveNewProfile()" class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50" [disabled]="!newProfileName().trim()">
+            Ekle
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

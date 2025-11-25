@@ -1,0 +1,127 @@
+<div class="fixed inset-0 bg-black bg-opacity-60 z-40 flex items-center justify-center p-4 animate-fade-in" (click)="closeModal.emit()">
+  <div class="bg-white rounded-lg shadow-xl w-full max-w-lg relative animate-slide-up" (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="flex justify-between items-center p-4 border-b border-gray-200">
+      <h3 class="text-lg font-semibold text-gray-800">İlaç Bilgisi Sorgula</h3>
+      <button (click)="closeModal.emit()" class="text-gray-400 hover:text-gray-600">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="p-6 min-h-[20rem] flex flex-col justify-center">
+      @switch (lookupState()) {
+        @case ('idle') {
+          <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <h3 class="mt-2 text-lg font-medium text-gray-900">İlaç Bilgilerini Anında Öğrenin</h3>
+            <p class="mt-1 text-sm text-gray-500">
+              İlaç kutusunun fotoğrafını çekin veya yükleyin.
+            </p>
+            <div class="mt-6 flex justify-center gap-4">
+              <button (click)="openCamera()" type="button" class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Kamera ile Çek
+              </button>
+              <button (click)="triggerFileUpload()" type="button" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" class="-ml-1 mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                   <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                Fotoğraf Yükle
+              </button>
+            </div>
+            <input type="file" #fileInput (change)="onFileSelected($event)" class="hidden" accept="image/png, image/jpeg">
+          </div>
+        }
+        @case ('processing') {
+          <div class="flex flex-col items-center justify-center space-y-4">
+            <svg class="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="text-lg font-medium text-gray-700 animate-pulse">{{ processingMessage() }}</p>
+          </div>
+        }
+        @case ('error') {
+           <div class="text-center">
+             <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+            </svg>
+            <h3 class="mt-2 text-lg font-medium text-gray-900">Bir Hata Oluştu</h3>
+            <p class="mt-1 text-sm text-red-600">{{ errorMessage() }}</p>
+            <div class="mt-6">
+               <button (click)="resetState()" type="button" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Tekrar Dene
+              </button>
+            </div>
+          </div>
+        }
+        @case ('success') {
+          @if (medicationDetails(); as details) {
+            <div class="max-h-[70vh] overflow-y-auto pr-2 space-y-4">
+              <h4 class="text-xl font-bold text-gray-900">{{ details.name }}</h4>
+              <p class="text-sm text-gray-500 -mt-3">Etkin Madde: <span class="font-medium text-gray-700">{{ details.activeSubstance }}</span></p>
+              
+              <div class="space-y-3 text-sm">
+                <div>
+                  <h5 class="font-semibold text-gray-800">Kullanım Amacı</h5>
+                  <p class="text-gray-600">{{ details.usage }}</p>
+                </div>
+                <div>
+                  <h5 class="font-semibold text-gray-800">Endikasyonlar (Hangi durumlarda kullanılır?)</h5>
+                  <ul class="list-disc list-inside text-gray-600 space-y-1 mt-1">
+                    @for(item of details.indications; track item) {
+                      <li>{{ item }}</li>
+                    }
+                  </ul>
+                </div>
+                 <div>
+                  <h5 class="font-semibold text-gray-800">Dozaj</h5>
+                  <p class="text-gray-600">{{ details.dosage }}</p>
+                </div>
+                <div>
+                  <h5 class="font-semibold text-gray-800">Yan Etkiler</h5>
+                  <p class="text-gray-600">{{ details.sideEffects }}</p>
+                </div>
+                <div>
+                  <h5 class="font-semibold text-red-700">Kontrendikasyonlar (Hangi durumlarda kullanılmaz?)</h5>
+                  <p class="text-gray-600">{{ details.contraindications }}</p>
+                </div>
+              </div>
+              <p class="text-xs text-center text-gray-400 pt-2">Bu bilgiler sadece bilgilendirme amaçlıdır. Tedavi için doktorunuza veya eczacınıza danışınız.</p>
+            </div>
+          }
+        }
+      }
+    </div>
+     @if (lookupState() === 'success') {
+      <div class="px-4 py-3 bg-gray-50 text-right sm:px-6 rounded-b-lg">
+        <button (click)="resetState()" type="button" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          Yeni Sorgu
+        </button>
+      </div>
+     }
+  </div>
+</div>
+
+<!-- Camera View -->
+@if (isCameraOpen()) {
+  <div class="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center text-white">
+      <video #videoElement autoplay playsinline class="w-full h-full object-cover"></video>
+      <canvas #canvasElement class="hidden"></canvas>
+      <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+      <div class="absolute bottom-0 left-0 right-0 p-4 flex justify-center items-center">
+          <button (click)="closeCamera()" type="button" class="absolute left-4 text-sm font-medium bg-black/30 backdrop-blur-sm p-2 rounded-lg">İptal</button>
+          <button (click)="captureImage()" type="button" class="h-20 w-20 rounded-full bg-white/90 flex items-center justify-center ring-4 ring-white/30 ring-offset-4 ring-offset-black/20 focus:outline-none focus:ring-blue-500">
+              <div class="h-16 w-16 rounded-full bg-white"></div>
+          </button>
+      </div>
+  </div>
+}

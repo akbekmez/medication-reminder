@@ -1,0 +1,102 @@
+<div class="space-y-4">
+  @for (med of medications(); track med.id) {
+    @let reportInfo = getReportStatus(med);
+    <div class="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+      <div class="p-5">
+        <div class="flex items-start justify-between">
+          <div>
+            <h3 class="text-xl font-bold text-gray-800">{{ med.name }}</h3>
+            <div class="flex items-center flex-wrap gap-x-4 gap-y-1 mt-1">
+              <p class="text-sm text-gray-500">{{ med.quantity }} {{ med.unit }}</p>
+              @if (med.stock !== undefined && med.stock !== null) {
+                <div class="flex items-center text-sm" [class.text-red-600]="isStockLow(med)" [class.text-gray-500]="!isStockLow(med)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zM8 4a1 1 0 00-1 1v5.586L5.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V5a1 1 0 00-1-1H8z" clip-rule="evenodd" />
+                  </svg>
+                  <span class="font-medium">Kalan Stok: {{ med.stock }}</span>
+                </div>
+              }
+               @if (reportInfo.status !== 'none') {
+                <div class="flex items-center text-sm font-medium" 
+                  [class.text-green-600]="reportInfo.status === 'ok'"
+                  [class.text-yellow-600]="reportInfo.status === 'expiring'"
+                  [class.text-red-600]="reportInfo.status === 'expired'">
+                  
+                  @if (reportInfo.status === 'ok') {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                  } @else {
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.21 3.03-1.742 3.03H4.42c-1.532 0-2.492-1.696-1.742-3.03l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                  }
+                  <span>{{ reportInfo.message }}</span>
+                </div>
+              }
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button (click)="viewDetails.emit(med)" title="Detayları Görüntüle" class="text-gray-400 hover:text-indigo-600 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+            </button>
+            <button (click)="viewHistory.emit(med)" title="Geçmişi Görüntüle" class="text-gray-400 hover:text-green-600 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                </svg>
+            </button>
+            <button (click)="onEdit(med)" title="Düzenle" class="text-gray-400 hover:text-blue-600 focus:outline-none">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
+                <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <button (click)="onDelete(med.id)" title="Sil" class="text-gray-400 hover:text-red-600 focus:outline-none">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        @if (med.notes) {
+          <div class="mt-3 text-sm text-gray-600 bg-gray-50 p-3 rounded-md border-l-4 border-gray-300">
+            <p class="italic">{{ med.notes }}</p>
+          </div>
+        }
+
+        <div class="mt-4 p-3 rounded-md flex items-center justify-between"
+             [class]="isOverdue(med.nextDose) ? 'bg-red-50 border-l-4 border-red-400' : 'bg-blue-50 border-l-4 border-blue-400'">
+            <div>
+              <p class="text-sm font-medium" [class]="isOverdue(med.nextDose) ? 'text-red-800' : 'text-blue-800'">
+                Sıradaki Doz
+              </p>
+              <p class="text-lg font-semibold" [class]="isOverdue(med.nextDose) ? 'text-red-900' : 'text-blue-900'">
+                {{ formatNextDose(med.nextDose) }}
+              </p>
+            </div>
+             <button (click)="takePill.emit(med.id)" class="px-4 py-2 text-sm font-semibold text-white bg-green-500 rounded-md shadow-sm hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform duration-200 ease-in-out hover:scale-105">
+                Alındı İşaretle
+             </button>
+        </div>
+      </div>
+      @if(isStockLow(med)) {
+        <div class="bg-yellow-50 border-t border-yellow-200 px-5 py-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.21 3.03-1.742 3.03H4.42c-1.532 0-2.492-1.696-1.742-3.03l5.58-9.92zM10 13a1 1 0 110-2 1 1 0 010 2zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+              <p class="text-sm font-medium text-yellow-800">Stoğunuz azalıyor. Yakında ilacınız bitebilir.</p>
+            </div>
+            <button (click)="requestRefill.emit(med)" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500">
+              Yeniden Dolum İste
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
